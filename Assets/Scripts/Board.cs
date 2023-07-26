@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Board : MonoBehaviour
 {
+    [SerializeField] private UIController ui;
     private static readonly KeyCode[] SUPPORTED_KEYS = new KeyCode[] {
         KeyCode.A, KeyCode.B, KeyCode.C, KeyCode.D, KeyCode.E, KeyCode.F,
         KeyCode.G, KeyCode.H, KeyCode.I, KeyCode.J, KeyCode.K, KeyCode.L,
@@ -21,6 +22,7 @@ public class Board : MonoBehaviour
     private string[] validWords;
 
     private string word;
+    private bool isWin = false;
 
     [Header("State")]
     public Tile.State emptyState;
@@ -28,11 +30,6 @@ public class Board : MonoBehaviour
     public Tile.State correctState;
     public Tile.State wrongSpotState;
     public Tile.State incorrectState;
-
-    [Header("UI")]
-    public GameObject invalidWord;
-    public Button newWordBtn;
-    public Button tryAgainBtn;
 
     private void Awake()
     {
@@ -76,7 +73,7 @@ public class Board : MonoBehaviour
             colIndex = Mathf.Max(colIndex - 1, 0);
             currentRow.tiles[colIndex].SetLetter('\0');
             currentRow.tiles[colIndex].SetState(emptyState);
-            invalidWord.gameObject.SetActive(false);
+            ui.invalidWord.gameObject.SetActive(false);
         }
         else if(colIndex >= currentRow.tiles.Length)
         {
@@ -104,7 +101,7 @@ public class Board : MonoBehaviour
     {
         if(!IsValidWord(row.Word))
         {
-            invalidWord.gameObject.SetActive(true);
+            ui.invalidWord.gameObject.SetActive(true);
             return;
         }
 
@@ -188,16 +185,24 @@ public class Board : MonoBehaviour
                 return false;
             }
         }
-        return true;
+        isWin = true;
+        return isWin;
     }
     private void OnEnable()
     {
-        tryAgainBtn.gameObject.SetActive(false);
-        newWordBtn.gameObject.SetActive(false);
+        isWin = false;
+        ui.StartGame();
     }
     private void OnDisable()
     {
-        tryAgainBtn.gameObject.SetActive(true);
-        newWordBtn.gameObject.SetActive(true);
+        if(isWin)
+        {
+            ui.GameWin();
+        }
+        else
+        {
+            ui.GameOver();
+        }
+        
     }
 }
